@@ -2,8 +2,10 @@
 const dotenv = require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");  //allows us to use post request parameters
-const app = express();
+const generateRandomString = require('./lib/generateShortUrl');
 
+
+const app = express();
 const port = process.env.port;
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -34,7 +36,7 @@ app.get("/urls/new", (req, res) => {
 app.get('/urls/:id', (req, res) => {
   const shortUrl = req.params.id;
   const longUrl = urlDatabase[shortUrl];
-  res.render("urls_show", {urlDatabase});
+  res.render("urls_show", {urlDatabase}); // if i wanna have single id & link => change this line
   });
 
 app.get('/about', (req, res) => {
@@ -45,16 +47,12 @@ app.get('/about', (req, res) => {
 // ---------------------------- CREATE ---------------------------- //
 
 app.post("/urls", (req, res) => {
-  let shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
-  res.redirect("/urls/" + shortURL);
-  console.log(urlDatabase);
+  let shortUrl = generateRandomString();
+  urlDatabase[shortUrl] = req.body.longUrl;
+  res.redirect("/urls/" + shortUrl);
 });
 
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}!`);
 });
-function generateRandomString() {
-  return (Math.random().toString(36).substr(2, 5));
-}
