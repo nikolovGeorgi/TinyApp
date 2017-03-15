@@ -1,0 +1,34 @@
+<!-- views/urls_index.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ./partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ./partials/header %>
+    </header>
+    <main>
+      <h2>The best Web Sites in the World Wide Web!</h2>
+      <table class="table">
+        <% for (var el in urlDatabase) {
+          var longUrl = urlDatabase[el];
+          %>
+        <tr>
+          <td><%= el %></td>
+          <td><a href="<%= longUrl %>"><%= longUrl %></a></td>
+        </tr>
+        <% }; %>
+      </table>
+      <div class="jumbotron">
+          <h2>This is great</h2>
+          <p>Welcome to my Tiny App!</p>
+      </div>
+    </main>
+    <footer>
+        <% include ./partials/footer %>
+    </footer>
+</body>
+</html>

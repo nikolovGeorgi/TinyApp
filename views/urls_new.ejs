@@ -1,0 +1,31 @@
+<!-- views/urls_index.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ./partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ./partials/header %>
+    </header>
+    <main>
+      <h2>Shorten UR LIFE!</h2>
+      <form action="/urls" method="post" style="margin:15px;">
+        <label for="longUrl">Enter a URL:</label>
+        <input id="longUrl" type="text" name="longUrl" placeholder="http://" style="width: 300px">
+        <input type="submit" value="Submit">
+      </form>
+      <div class="jumbotron">
+          <h2>This is great</h2>
+          <p>Welcome to my Tiny App!</p>
+      </div>
+    </main>
+
+    <footer>
+        <% include ./partials/footer %>
+    </footer>
+
+</body>
+</html>
