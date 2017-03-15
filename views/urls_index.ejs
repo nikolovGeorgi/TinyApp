@@ -31,9 +31,7 @@
             <td><a href="/urls/<%= el %>"><%= el %></a></td>
             <td><a href="<%= longUrl %>"><%= longUrl %></a></td>
             <td>
-              <form  method="post" action="/urls/<%= el %>">
-                  <button type="submit" value="editKey" class="btn btn-warning btn-sm">Edit</button>
-              </form>
+              <a href="/urls/<%= el %>" class="btn btn-warning btn-sm"> Edit </a>
             </td>
             <td>
               <form  method="post" action="/urls/<%= el %>/delete">

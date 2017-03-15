@@ -36,7 +36,7 @@ app.get("/urls/new", (req, res) => {
 app.get('/urls/:id', (req, res) => {
   const shortUrl = req.params.id;
   const longUrl = urlDatabase[shortUrl];
-  // const editUrl = req.params.
+  // console.log(req.params.editUrl);
   res.render("urls_id", {shortUrl, longUrl}); // if i wanna have single id & link => change this line
 });
 
@@ -45,11 +45,18 @@ app.get('/about', (req, res) => {
 });
 
 // ---------------------------- CREATE ---------------------------- //
-
+// once i create a new short url
 app.post("/urls", (req, res) => {
   let shortUrl = generateRandomString();
   urlDatabase[shortUrl] = req.body.longUrl;
   res.redirect("/urls/" + shortUrl);
+});
+
+// THIS IS EXECUTED IN /urls
+app.post('/urls/:id', (req, res) => {
+  const editUrl = req.body.editUrl; //longUrl
+  urlDatabase[req.params.id] = editUrl
+  res.redirect('/urls/' + req.params.id);
 });
 
 app.post('/urls/:id/delete', (req, res) => {
