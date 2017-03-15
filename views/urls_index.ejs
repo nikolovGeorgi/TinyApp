@@ -31,12 +31,12 @@
             <td><a href="/urls/<%= el %>"><%= el %></a></td>
             <td><a href="<%= longUrl %>"><%= longUrl %></a></td>
             <td>
-              <form  method="post" action="/urls/<%= longUrl %>/edit">
-                  <button type="submit" value="deleteKey" class="btn btn-warning btn-sm">Edit</button>
+              <form  method="post" action="/urls/<%= el %>">
+                  <button type="submit" value="editKey" class="btn btn-warning btn-sm">Edit</button>
               </form>
             </td>
             <td>
-              <form  method="post" action="/urls/<%= longUrl %>/delete">
+              <form  method="post" action="/urls/<%= el %>/delete">
                   <button type="submit" value="deleteKey" class="btn btn-warning btn-sm">Delete</button>
               </form>
             </td>
