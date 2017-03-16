@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+  <head>
+      <% include ./partials/head %>
+  </head>
+  <body class="container">
+    <h1>Please Log In</h1>
+    <li>
+      <form action="/login" method="post" style="margin:15px;">
+        <label for="email">Email:
+            <input id="email" type="email" name="email" placeholder="" style="width: 100px">
+        </label>
+        <label for="password">Password:
+            <input id="password" type="password" name="password" placeholder="" style="width: 100px">
+        </label>
+        <input type="submit" value="Log In" class="btn btn-warning btn-sm">
+      </form>
+    </li>
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,39 @@
+<!-- views/partials/header.ejs -->
+
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">
+                <span class="glyphicon glyphicon glyphicon-tree-deciduous"></span>
+                LHL Is Fun
+            </a>
+        </div>
+        <ul class="nav navbar-nav">
+          <% if(user){ %>
+            <h1> Hello! <%= user.name %></h1>
+            <li>
+              <h3> <%= user.email %> </h3>
+            </li>
+            <li><a href="/">Home</a></li>
+            <li><a href="/urls">My Links</a></li>
+            <li>
+              <form action="/logout" method="get" style="margin:15px;">
+                <input type="submit" value"Logout" class="btn btn-warning btn-sm">
+              </form>
+            </li>
+          <% } else { %>
+            <li>
+              <form action="/login" method="get" style="margin:15px;">
+                <input type="submit" value"Login" class="btn btn-warning btn-sm">
+              </form>
+            </li>
+            <li>
+              <form action="/register" method="get" style="margin:15px;">
+                <input type="submit" value="Register" class="btn btn-warning btn-sm">
+              </form>
+            </li>
+         <% } %>
+        </ul>
+    </div>
+</nav>
