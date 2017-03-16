@@ -18,15 +18,17 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-let userDatabse = {
+let userDatabase = {
   "userRandomID": {
     id: "userRandomID",
-    email: "user@example.com",
+    name: "tom",
+    // email: "user@example.com",
     password: "123a"
   },
  "user2RandomID": {
     id: "test2",
-    email: "user2@example.com",
+    name: "georgi",
+    // email: "user2@example.com",
     password: "asd1"
   }
 };
@@ -42,7 +44,7 @@ app.use(cookieParser());
 app.use(flash());
 
 app.use(session({
-  secret: 'george',
+  secret: 'georgi',
   resave: false,
   saveUninitialized: true,
   cookie: {}
@@ -55,7 +57,7 @@ app.get('/urls', (req, res) => {
     username: req.cookies["username"],
     urlDatabase: urlDatabase
   }
-  res.render("urls_index", templateVars);
+  res.render("urls_index", {templateVars});   // Last change res.render("urls_index", templateVars);
 });
 
 // app.get("/urls", (req, res) => {
@@ -98,7 +100,7 @@ app.get('/login', (req, res) => {
   let templateVars = {
     username: req.cookies["username"]
   };
-  res.render('urls_index', templateVars);
+  res.render('urls_index', {templateVars});
   return;
 });
 
@@ -151,12 +153,12 @@ app.post('/urls/:id/delete', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  if( !((req.body.email) && (req.body.password)) ){
+  if( !((req.cookies["username"]) && (req.body.password)) ){
     res.sendStatus(400);
     return;
   }
   for (let el in userDatabase){
-    if ((req.body.email === userDatabase[el].email)){
+    if ((req.cookies["username"] === userDatabase[el].name)){
       console.log("Already Registered!");
       res.sendStatus(400);
       return;
@@ -166,7 +168,7 @@ app.post('/register', (req, res) => {
   res.cookie("username", newUser);
   userDatabase[newUser] = {
     id: newUser,
-    email: req.body.email,
+    name: req.cookies["username"],
     password: req.body.password
   };
   res.redirect('/urls');
@@ -183,7 +185,7 @@ app.post('/login', (req, res) => {
   // res.redirect('/urls' + username );
   // }
   for (let el in userDatabase){
-    if((userDatabase[el].email === req.body.email) &&
+    if((userDatabase[el].name === req.cookies["username"]) &&
        (userDatabase[el].password === req.body.password)){
          console.log("Existing user", userDatabase[el]);
          res.cookie("username", userDatabase[el].id);
