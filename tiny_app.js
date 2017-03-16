@@ -1,7 +1,8 @@
 'use strick';
 const dotenv = require('dotenv').config();
 const express = require("express");
-const bodyParser = require("body-parser");  //allows us to use post request parameters
+const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser');
 const generateRandomString = require('./lib/generateShortUrl');
 
 
@@ -17,6 +18,7 @@ app.locals.title = "TinyApp";
 
 //Middlewares
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 
 
 // ---------------------------- Retrieve ---------------------------- //
