@@ -1,10 +1,12 @@
 'use strick';
+const flash = require('connect-flash');
 const dotenv = require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+
 const generateRandomString = require('./lib/generateShortUrl');
-// const session = require('express-session');
+const session = require('express-session');
 //https://github.com/expressjs/session
 //https://github.com/jaredhanson/connect-flash
 
@@ -16,7 +18,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const userDatabse = {
+let userDatabse = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
@@ -37,16 +39,17 @@ app.locals.title = "TinyApp";
 //Middlewares
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
+app.use(flash());
 
-// app.use(session({
-//   secret: 'george',
-//   resave: false,
-//   saveUninitialized: true,
-//   cookie: {}
-// }))
+app.use(session({
+  secret: 'george',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {}
+}))
 // ---------------------------- Retrieve ---------------------------- //
 
-app.get('/', (req, res) => {
+app.get('/urls', (req, res) => {
   // res.render('pages/index', urlDatabase);
   let templateVars = {
     username: req.cookies["username"],
@@ -55,31 +58,54 @@ app.get('/', (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls", (req, res) => {
-  res.render("urls_index", {urlDatabase});
-});
+// app.get("/urls", (req, res) => {
+//   res.render("urls_index", {urlDatabase});
+// });
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
 app.get('/urls/:id', (req, res) => {
-  const shortUrl = req.params.id;
-  const longUrl = urlDatabase[shortUrl];
-  // console.log(req.params.editUrl);
-  res.render("urls_id", {shortUrl, longUrl}); // if i wanna have single id & link => change this line
+  let templateVars = {
+    shortUrl: req.params.id,
+    longUrl: urlDatabase[req.params.id],
+    username: req.cookies["username"],
+    saved: req.flash('saved').length > 0
+  };
+  res.render("urls_id", templateVars);
 });
+// app.get('/urls/:id', (req, res) => {
+//   const shortUrl = req.params.id;
+//   const longUrl = urlDatabase[shortUrl];
+//   // console.log(req.params.editUrl);
+//   res.render("urls_id", {shortUrl, longUrl});
+// });
 // http://stackoverflow.com/questions/14902923/cannot-post-form-node-js-express
 app.get('/register', (req, res) => {
   // res.render('urls_register', {
   //   email: userDatabse,
   //   password: userDatabse
   // });
-  res.render("urls_register");
+  let templateVars = {
+    username: req.cookies["username"]
+  }
+  res.render("urls_register", templateVars);
+  return;
 });
 
 app.get('/login', (req, res) => {
-  res.render('urls_index')
+  let templateVars = {
+    username: req.cookies["username"]
+  };
+  res.render('urls_index', templateVars);
+  return;
+});
+
+app.get("/u/:shortUrl", (req, res) => {
+  let longUrl = url[req.params.shortUrl];
+  console.log("Created shortUrl:", req.params.shortUrl);
+  res.redirect(longUrl);
 });
 
 app.get('/about', (req, res) => {
@@ -92,15 +118,30 @@ app.get("/urls.json", (req, res) => {
 // ---------------------------- CREATE ---------------------------- //
 // once i create a new short url
 app.post("/urls", (req, res) => {
-  let shortUrl = generateRandomString();
-  urlDatabase[shortUrl] = req.body.longUrl;
-  res.redirect("/urls/" + shortUrl);
+  if(req.cookies["username"] !== null){
+    let shortUrl = generateRandomString();
+    urlDatabase[shortUrl] = req.body.longUrl;
+    req.flash("saved", true);
+    res.redirect("/urls/" + shortUrl);
+  }else{
+    console.log("Log in!");
+    res.sendStatus(403);
+    return;
+  }
+  return;
 });
+// app.post("/urls", (req, res) => {
+//
+//   let shortUrl = generateRandomString();
+//   urlDatabase[shortUrl] = req.body.longUrl;
+//   res.redirect("/urls/" + shortUrl);
+// });
 
 // THIS IS EXECUTED IN /urls
 app.post('/urls/:id', (req, res) => {
   const editUrl = req.body.editUrl; //longUrl
-  urlDatabase[req.params.id] = editUrl
+  urlDatabase[req.params.id] = editUrl;
+  req.flash('saved', true);
   res.redirect('/urls/' + req.params.id);
 });
 
@@ -110,8 +151,27 @@ app.post('/urls/:id/delete', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  res.redirect('/register');
+  if( !((req.body.email) && (req.body.password)) ){
+    res.sendStatus(400);
+    return;
+  }
+  for (let el in userDatabase){
+    if ((req.body.email === userDatabase[el].email)){
+      console.log("Already Registered!");
+      res.sendStatus(400);
+      return;
+    }
+  }
+  let newUser = generateRandomString();
+  res.cookie("username", newUser);
+  userDatabase[newUser] = {
+    id: newUser,
+    email: req.body.email,
+    password: req.body.password
+  };
+  res.redirect('/urls');
 });
+
 app.post('/login', (req, res) => {
   // let username = req.body.userid
   // // let password = req.body.password
@@ -122,13 +182,24 @@ app.post('/login', (req, res) => {
   // req.session.isLoggedOn = true;
   // res.redirect('/urls' + username );
   // }
-  let name = req.body.username;
-  res.cookie("username", name);
-  res.redirect('/');
+  for (let el in userDatabase){
+    if((userDatabase[el].email === req.body.email) &&
+       (userDatabase[el].password === req.body.password)){
+         console.log("Existing user", userDatabase[el]);
+         res.cookie("username", userDatabase[el].id);
+         res.redirect("/urls");
+         return;
+       }
+  }
+  res.sendStatus(404);
+  // let name = req.body.username;
+  // res.cookie("username", name);
+  // res.redirect('/urls');
 });
 app.post("/logout", (req, res) => {
   res.clearCookie("username");
-  res.redirect('/');
+  res.redirect('/urls');
+  return;
 });
 // app.post('/urls/:id', (req, res) => {
 //   let editUrl = urlDatabase[req.params.editUrl]; //longUrl
