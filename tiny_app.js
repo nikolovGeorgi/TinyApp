@@ -4,54 +4,57 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
 const generateRandomString = require('./lib/generateShortUrl');
-const session = require('express-session');
+// const session = require('express-session');
+
 
 const app = express();
 const port = process.env.port;
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
 const userDatabse = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: "123a"
   },
  "user2RandomID": {
-    id: "user2RandomID",
+    id: "test2",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: "asd1"
   }
 };
 
-// ---------------------------- Configuration ---------------------------- //
+// Configuration
 app.set('view engine', 'ejs');
 app.locals.title = "TinyApp";
 
-// ---------------------------- Middlewares ---------------------------- //
+//Middlewares
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
-app.use(session({
-  secret: 'george',
-  resave: false,
-  saveUninitialized: true,
-  cookie: {}
-}))
-
+// app.use(session({
+//   secret: 'george',
+//   resave: false,
+//   saveUninitialized: true,
+//   cookie: {}
+// }))
 // ---------------------------- Retrieve ---------------------------- //
 
 app.get('/', (req, res) => {
-  // console.log("Cookies: ", req.cookies);
-  // res.cookie(name , 'value', {expire : new Date() + 9999});
-  res.render('pages/index', urlDatabase);
+  // res.render('pages/index', urlDatabase);
+  let templateVars = {
+    username: req.cookies["username"],
+    urlDatabase: urlDatabase
+  }
+  res.render("urls_index", templateVars);
 });
 
 app.get("/urls", (req, res) => {
-  userDatabse['urlDatabase'] = urlDatabase,
-  console.log(userDatabse);
-  res.render("urls_index", userDatabse);
+  res.render("urls_index", {urlDatabase});
 });
 
 app.get("/urls/new", (req, res) => {
@@ -61,42 +64,32 @@ app.get("/urls/new", (req, res) => {
 app.get('/urls/:id', (req, res) => {
   const shortUrl = req.params.id;
   const longUrl = urlDatabase[shortUrl];
-  res.render("urls_id", {shortUrl, longUrl});
+  // console.log(req.params.editUrl);
+  res.render("urls_id", {shortUrl, longUrl}); // if i wanna have single id & link => change this line
+});
+app.get('/register', (req, res) => {
+  res.render('urls_register', {
+    email: userDatabse,
+    password: userDatabse
+  });
 });
 
-// app.get('/login', (req, res) => {
-//   let cookie_id = req.body.username;
-//   console.log(req.body.username);
-//   res.render("pages/index", req.body.username);
-// });
 app.get('/login', (req, res) => {
-  console.log(res.cookie);
-  res.cookie(req.body.name, 'cookie_value').send('Username is set!');
-  // let cookieName = res.cookies.name;
-  // console.log(cookieName);
-  console.log("Cookies: ", req.cookies);
+  res.render('urls_index')
 });
-// app.get('/clearcookie',(req,res) => {
-//      clearCookie('cookie_name');
-//      res.send('Cookie deleted');
-// });
 app.get('/about', (req, res) => {
   res.render('pages/about');
 });
 
 // ---------------------------- CREATE ---------------------------- //
-
+// once i create a new short url
 app.post("/urls", (req, res) => {
   let shortUrl = generateRandomString();
   urlDatabase[shortUrl] = req.body.longUrl;
   res.redirect("/urls/" + shortUrl);
 });
 
-app.post("/login", (req, res) => {
-  userDatabse['username'] = req.body.username;
-  res.redirect("/urls/"+ req.body.username);
-});
-
+// THIS IS EXECUTED IN /urls
 app.post('/urls/:id', (req, res) => {
   const editUrl = req.body.editUrl; //longUrl
   urlDatabase[req.params.id] = editUrl
@@ -108,21 +101,35 @@ app.post('/urls/:id/delete', (req, res) => {
   res.redirect('/urls');
 });
 
-app.post('/login/', (req, res) => {
-  let username = req.body.userid
-  // let password = req.body.password
-if (!userDatabase[username]) {
-  res.redirect(401, '/urls')
-} else if (userDatabase[username]) {
-  // should also check for password
-  req.session.isLoggedOn = true
-  res.redirect('/urls' + username )
-}
+app.post('/login', (req, res) => {
+  // let username = req.body.userid
+  // // let password = req.body.password
+  // if (!userDatabase[username]) {
+  //   res.redirect(401, '/urls');
+  // } else if (userDatabase[username]) {
+  // // should also check for password
+  // req.session.isLoggedOn = true;
+  // res.redirect('/urls' + username );
+  // }
+  let name = req.body.username;
+  res.cookie("username", name);
+  console.log(res.cookie)
+  res.redirect('/');
+});
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  res.redirect('/');
+});
+// app.post('/urls/:id', (req, res) => {
+//   let editUrl = urlDatabase[req.params.editUrl]; //longUrl
+//   console.log(req.params);
+//   res.redirect('/urls/'+ editUrl);
+// });
 
-// ---------------------------- Ports ---------------------------- //
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}!`);
 });
+
 // to consider
 
 // clicking submit button without anything generates a new string and takes us to the new pages

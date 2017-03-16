@@ -8,20 +8,19 @@
 <body class="container">
 
     <header>
-        <% include ./partials/header %>
+        <% include ./partials/header_register %>
     </header>
     <main>
       <h2>The best Web Sites in the World Wide Web!</h2>
-      <table class="table">
-        <% for (var el in urlDatabase) {
-          var longUrl = urlDatabase[el];
-          %>
-        <tr>
-          <td><%= el %></td>
-          <td><a href="<%= longUrl %>"><%= longUrl %></a></td>
-        </tr>
-        <% }; %>
-      </table>
+        <form action="/login" method="post" style="margin:15px;">
+          <label for="username">Enter Username:
+              <input id="username" type="text" name="username" placeholder="" style="width: 100px">
+          </label>
+          <label for="password">Enter Password:
+              <input id="password" type="text" name="username" placeholder="" style="width: 100px">
+          </label>
+          <input type="submit" value="Submit" class="btn btn-warning btn-sm">
+        </form>
       <div class="jumbotron">
           <h2>This is great</h2>
           <p>Welcome to my Tiny App!</p>
