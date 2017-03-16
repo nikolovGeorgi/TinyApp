@@ -13,7 +13,16 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 const userDatabse = {
-
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
 };
 
 // ---------------------------- Configuration ---------------------------- //
@@ -23,7 +32,6 @@ app.locals.title = "TinyApp";
 // ---------------------------- Middlewares ---------------------------- //
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
-<<<<<<< HEAD
 
 app.use(session({
   secret: 'george',
@@ -32,8 +40,6 @@ app.use(session({
   cookie: {}
 }))
 
-=======
->>>>>>> 6b427eeaae2fbf29c8f29759da3b1ac0e74d5cc7
 // ---------------------------- Retrieve ---------------------------- //
 
 app.get('/', (req, res) => {
