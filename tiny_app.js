@@ -23,6 +23,7 @@ app.locals.title = "TinyApp";
 // ---------------------------- Middlewares ---------------------------- //
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
+<<<<<<< HEAD
 
 app.use(session({
   secret: 'george',
@@ -31,6 +32,8 @@ app.use(session({
   cookie: {}
 }))
 
+=======
+>>>>>>> 6b427eeaae2fbf29c8f29759da3b1ac0e74d5cc7
 // ---------------------------- Retrieve ---------------------------- //
 
 app.get('/', (req, res) => {
