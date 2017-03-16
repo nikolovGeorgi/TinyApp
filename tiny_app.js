@@ -5,7 +5,8 @@ const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
 const generateRandomString = require('./lib/generateShortUrl');
 // const session = require('express-session');
-
+//https://github.com/expressjs/session
+//https://github.com/jaredhanson/connect-flash
 
 const app = express();
 const port = process.env.port;
@@ -31,6 +32,7 @@ const userDatabse = {
 // Configuration
 app.set('view engine', 'ejs');
 app.locals.title = "TinyApp";
+
 
 //Middlewares
 app.use(bodyParser.urlencoded({extended: true}));
@@ -67,20 +69,26 @@ app.get('/urls/:id', (req, res) => {
   // console.log(req.params.editUrl);
   res.render("urls_id", {shortUrl, longUrl}); // if i wanna have single id & link => change this line
 });
+// http://stackoverflow.com/questions/14902923/cannot-post-form-node-js-express
 app.get('/register', (req, res) => {
-  res.render('urls_register', {
-    email: userDatabse,
-    password: userDatabse
-  });
+  // res.render('urls_register', {
+  //   email: userDatabse,
+  //   password: userDatabse
+  // });
+  res.render("urls_register");
 });
 
 app.get('/login', (req, res) => {
   res.render('urls_index')
 });
+
 app.get('/about', (req, res) => {
   res.render('pages/about');
 });
 
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
 // ---------------------------- CREATE ---------------------------- //
 // once i create a new short url
 app.post("/urls", (req, res) => {
@@ -101,6 +109,9 @@ app.post('/urls/:id/delete', (req, res) => {
   res.redirect('/urls');
 });
 
+app.post('/register', (req, res) => {
+  res.redirect('/register');
+});
 app.post('/login', (req, res) => {
   // let username = req.body.userid
   // // let password = req.body.password
@@ -113,7 +124,6 @@ app.post('/login', (req, res) => {
   // }
   let name = req.body.username;
   res.cookie("username", name);
-  console.log(res.cookie)
   res.redirect('/');
 });
 app.post("/logout", (req, res) => {
