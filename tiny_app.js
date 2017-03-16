@@ -12,15 +12,32 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
-// Configuration
+
+// ---------------------------- Configuration ---------------------------- //
 app.set('view engine', 'ejs');
 app.locals.title = "TinyApp";
 
-//Middlewares
+// ---------------------------- Middlewares ---------------------------- //
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
-
-
+// app.use(function (req, res, next) {
+//   // check if client sent cookie
+//   var cookie = req.cookies.cookieName;
+//   if (cookie === undefined)
+//   {
+//     // no: set a new cookie
+//     var randomNumber=Math.random().toString();
+//     randomNumber=randomNumber.substring(2,randomNumber.length);
+//     res.cookie('cookieName',randomNumber, { maxAge: 900000, httpOnly: true });
+//     console.log('cookie created successfully');
+//   }
+//   else
+//   {
+//     // yes, cookie was already present
+//     console.log('cookie exists', cookie);
+//   }
+//   next(); // <-- important!
+// });
 // ---------------------------- Retrieve ---------------------------- //
 
 app.get('/', (req, res) => {
@@ -38,8 +55,7 @@ app.get("/urls/new", (req, res) => {
 app.get('/urls/:id', (req, res) => {
   const shortUrl = req.params.id;
   const longUrl = urlDatabase[shortUrl];
-  // console.log(req.params.editUrl);
-  res.render("urls_id", {shortUrl, longUrl}); // if i wanna have single id & link => change this line
+  res.render("urls_id", {shortUrl, longUrl});
 });
 
 app.get('/about', (req, res) => {
@@ -47,14 +63,13 @@ app.get('/about', (req, res) => {
 });
 
 // ---------------------------- CREATE ---------------------------- //
-// once i create a new short url
+
 app.post("/urls", (req, res) => {
   let shortUrl = generateRandomString();
   urlDatabase[shortUrl] = req.body.longUrl;
   res.redirect("/urls/" + shortUrl);
 });
 
-// THIS IS EXECUTED IN /urls
 app.post('/urls/:id', (req, res) => {
   const editUrl = req.body.editUrl; //longUrl
   urlDatabase[req.params.id] = editUrl
@@ -66,12 +81,7 @@ app.post('/urls/:id/delete', (req, res) => {
   res.redirect('/urls');
 });
 
-// app.post('/urls/:id', (req, res) => {
-//   let editUrl = urlDatabase[req.params.editUrl]; //longUrl
-//   console.log(req.params);
-//   res.redirect('/urls/'+ editUrl);
-// });
-
+// ---------------------------- Ports ---------------------------- //
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}!`);
 });
