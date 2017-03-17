@@ -125,34 +125,28 @@ app.post('/register', (req, res) => {
   //if user email exists -> redirect them to home page
   if (req.body.email && req.body.password){
     for (let i in userDB){
+    // if valid inputs make a user check
       const user = userDB[i];
-      if (user.email === req.body.email){
+      if (req.body.email === user.email){
         res.redirect('/');
       };
     };
     userDB[`${req.body.email}`] = {
-      // req.body.name: req.body.name, // change this
+      name: req.body.email,
       email: req.body.email,
       password: req.body.password
     };
-    res.redirect('/login');
-    // Check to see if there is a user with the body email
-    // const user = userDB[req.body.email];
-    // Check to see if that user has the body password
-    if(user && user.password === req.body.password){
-      // If so, login, set email cookie, and redirect
-      // res.cookie('email', req.body.email); // Cookie Version
-      req.session.email = req.body.email; // Session Version
-      //------------------------------------------
-      //change redirection to user home page
-      //------------------------------------------
-      res.redirect('/urls');
-    } else {
-      // If not, send status 403 and show 403
-      res.status(403).render('403');
-    }
+    // res.redirect('/login');
+    // If so, login, set email cookie, and redirect
+
+    // login = true?
+    console.log(userDB);
+    // res.cookie('email', req.body.email); // Cookie Version
+    req.session.email = req.body.email; // Session Version
+    res.redirect('/urls');
+  } else {
+    res.status(403).render('403');
   }
-  // add user to the db when added
 });
 
 // ---------------------------- User Home Page ---------------------------- //
