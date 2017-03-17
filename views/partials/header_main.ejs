@@ -18,18 +18,18 @@
             <li><a href="/">Home</a></li>
             <li><a href="/urls">My Links</a></li>
             <li>
-              <form action="/logout" method="get" style="margin:15px;">
-                <input type="submit" value"Logout" class="btn btn-warning btn-sm">
+              <form action="/logout" method="post" style="margin:15px;">
+                <input type="submit" value="Logout" class="btn btn-warning btn-sm">
               </form>
             </li>
           <% } else { %>
             <li>
-              <form action="/login" method="get" style="margin:15px;">
+              <form action="/login" method="post" style="margin:15px;">
                 <input type="submit" value"Login" class="btn btn-warning btn-sm">
               </form>
             </li>
             <li>
-              <form action="/register" method="get" style="margin:15px;">
+              <form action="/register" method="post" style="margin:15px;">
                 <input type="submit" value="Register" class="btn btn-warning btn-sm">
               </form>
             </li>

@@ -4,10 +4,11 @@ const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
 const generateRandomString = require('./lib/generateShortUrl');
 const cookieSession = require('cookie-session');
+const bcrypt = require('bcrypt');
 
 
 const app = express();
-const port = process.env.port;
+const port = process.env.PORT;
 
 // ---------------------------- dataBases ---------------------------- //
 const urlDatabase = {
@@ -32,19 +33,19 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.use(cookieSession({
   name: 'session',
-  secret: process.env.SESSION_SECRET || "fluffybunny",
+  secret: process.env.SESSION_SECRET,
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
 // ---------------------------- Custom Middleware ---------------------------- //
 app.use((req, res, next) => {
-  console.log('Custom User Middleware Session', req.session);
+  // console.log('Custom User Middleware Session', req.session);
   // Find a user from the cookies
   // const user = userDB[req.cookies.email]; // Cookie Version
   const user = userDB[req.session.email]; // Session Version
   // If the user is found, add it to the request
-  if(user){
+  if (user) {
     req.user = user;
   }
   next();
@@ -52,9 +53,10 @@ app.use((req, res, next) => {
 
 // ---------------------------- Main Page ---------------------------- //
 app.get('/', (req, res) => {
-  const user = userDB[req.body.email];
+  const user = userDB[req.session.email];
+  // console.log(req.user);
   if (user){
-    res.render('pages/index', {email: req.cookies.email, user: req.user});
+    res.render('pages/index', {user: req.user});
     // res.render('pages/index', urlDatabase);
   } else {
     res.redirect('/login');
@@ -72,22 +74,40 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
+  //check emailo and pass be true!
   // Check to see if there is a user with the body email
-  const user = userDB[req.body.email];
+    const user = userDB[req.body.email];
+    console.log(user, "user");
+    console.log("------------------------");
+    console.log(user.name, "user.name");
+    console.log(user.email, "user.email");
+    console.log(user.password, "user.pass");
+    console.log("------------------------");
+    console.log(req.body.email, " user.email");
+    console.log(req.body.password, " user.pass");
+    // if(req.user.email && req.user.password){
     // Check to see if that user has the body password
-  if(user && user.password === req.body.password){
-    // If so, login, set email cookie, and redirect
+    if(user && (user.password === req.body.password)){
+      // If so, login, set email cookie, and redirect
 
-    // res.cookie('email', req.body.email); // Cookie Version
-    req.session.email = req.body.email; // Session Version
-    //------------------------------------------
-    //change redirection to user home page
-    //------------------------------------------
-    res.redirect('/urls');
-  } else {
-    // If not, send status 403 and show 403
-    res.status(403).render('403');
-  }
+      // res.cookie('email', req.body.email); // Cookie Version
+      req.session.email = req.body.email; // Session Version
+      //------------------------------------------
+      //change redirection to user home page
+      //------------------------------------------
+      // console.log(user, " Is User");
+      // console.log(user.password, " Is user pass");
+      // console.log(req.body.password, " is req.body pass");
+      // console.log(req.session.email, " is req.session email");
+      // console.log(req.body.email, " is req.body email");
+      res.redirect('/');
+    } else {
+      // If not, send status 403 and show 403
+      res.status(403).render('403');
+    }
+  // } else {
+  //   res.redirect('/');
+  // };
 });
 
 //------------------------------
@@ -101,22 +121,38 @@ app.get('/register', (req, res) => {
 
 //SAVE the user information through checks!
 app.post('/register', (req, res) => {
-  // Check to see if there is a user with the body email
-  const user = userDB[req.body.email];
+  //check email and pass be true!
+  //if user email exists -> redirect them to home page
+  if (req.body.email && req.body.password){
+    for (let i in userDB){
+      const user = userDB[i];
+      if (user.email === req.body.email){
+        res.redirect('/');
+      };
+    };
+    userDB[`${req.body.email}`] = {
+      // req.body.name: req.body.name, // change this
+      email: req.body.email,
+      password: req.body.password
+    };
+    res.redirect('/login');
+    // Check to see if there is a user with the body email
+    // const user = userDB[req.body.email];
     // Check to see if that user has the body password
-  if(user && user.password === req.body.password){
-    // If so, login, set email cookie, and redirect
-
-    // res.cookie('email', req.body.email); // Cookie Version
-    req.session.email = req.body.email; // Session Version
-    //------------------------------------------
-    //change redirection to user home page
-    //------------------------------------------
-    res.redirect('/urls');
-  } else {
-    // If not, send status 403 and show 403
-    res.status(403).render('403');
+    if(user && user.password === req.body.password){
+      // If so, login, set email cookie, and redirect
+      // res.cookie('email', req.body.email); // Cookie Version
+      req.session.email = req.body.email; // Session Version
+      //------------------------------------------
+      //change redirection to user home page
+      //------------------------------------------
+      res.redirect('/urls');
+    } else {
+      // If not, send status 403 and show 403
+      res.status(403).render('403');
+    }
   }
+  // add user to the db when added
 });
 
 // ---------------------------- User Home Page ---------------------------- //
@@ -142,6 +178,7 @@ app.post("/urls", (req, res) => {
 
 // ---------------------------- URL to Short URL ---------------------------- //
 app.get('/urls/:id', (req, res) => {
+  // in user specific will have to change if statements
   const user = userDB[req.body.email];
   if (user){
     if (req.params.id){
@@ -152,6 +189,7 @@ app.get('/urls/:id', (req, res) => {
       res.status(404).render('404');
     };
   } else {
+    // choose one
     res.status(401).render('401');
     res.redirect('/login');
   };
@@ -195,9 +233,11 @@ app.post('/urls/:id/delete', (req, res) => {
 // });
 
 // ---------------------------- Logout Page ---------------------------- //
-app.get('/logout', (req, res) => {
+app.post('/logout', (req, res) => {
   // res.clearCookie('email'); // Cookie Version
+  console.log(req.session.email, "before delete");
   delete req.session.email; // Session Version
+  console.log(req.session.email, "after delete");
   res.redirect('/');
 });
 
