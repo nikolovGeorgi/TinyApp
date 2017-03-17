@@ -23,7 +23,7 @@ const userDB = {
     password: '123a'
   }
 }
-
+let timesVisited = 0;
 // ---------------------------- Configuration ---------------------------- //
 app.set('view engine', 'ejs');
 app.locals.title = "TinyApp";
@@ -54,7 +54,7 @@ app.use((req, res, next) => {
 // ---------------------------- Main Page ---------------------------- //
 app.get('/', (req, res) => {
   const user = userDB[req.session.email];
-  // console.log(req.user);
+  console.log(req.user);
   if (user){
     res.render('pages/index', {user: req.user});
     // res.render('pages/index', urlDatabase);
@@ -143,21 +143,24 @@ app.post('/register', (req, res) => {
     console.log(userDB);
     // res.cookie('email', req.body.email); // Cookie Version
     req.session.email = req.body.email; // Session Version
-    res.redirect('/urls');
   } else {
     res.status(403).render('403');
   }
+  res.redirect('/');
 });
 
 // ---------------------------- User Home Page ---------------------------- //
-//not sure where app get should be
+// app.get('/urls/:id', (req, res)=> {
+//   const timesVisited =  Number(req.cookies.timesVisited) || 0
+//   res.cookie('timesVisited', timesVisited + 1);
+// });
 app.get('/urls', (req, res) => {
-  const user = userDB[req.body.email];
+  const user = userDB[req.session.email];
   if (user){
-    res.render('user_home');
+    res.render('urls_index', {urlDatabase});
   } else {
     res.redirect('/login');
-  };
+  }
 });
 // post is at the wrong place ?
 // do i send post request from /urls or to /urls/:id
@@ -171,17 +174,20 @@ app.post("/urls", (req, res) => {
 });
 
 // ---------------------------- URL to Short URL ---------------------------- //
+//GIT check in urls_id vs user_home -> checked
+
 app.get('/urls/:id', (req, res) => {
   // in user specific will have to change if statements
-  const user = userDB[req.body.email];
+  const user = userDB[req.session.email];
+  console.log(user);
   if (user){
-    if (req.params.id){
+    // if (req.params.id){
       const shortUrl = req.params.id;
       const longUrl = urlDatabase[shortUrl];
-      res.render("user_home", {shortUrl, longUrl});
-    } else {
-      res.status(404).render('404');
-    };
+      res.render("urls_id", {shortUrl, longUrl});
+    // } else {
+      // res.status(404).render('404');
+    // };
   } else {
     // choose one
     res.status(401).render('401');
@@ -190,25 +196,32 @@ app.get('/urls/:id', (req, res) => {
 });
 
 app.post('/urls/:id', (req, res) => {
-  const user = userDB[req.body.email];
+  const user = userDB[req.session.email];
   if (user) {
-    if (req.params.id){
+    // if (req.params.id){
       const editUrl = req.body.editUrl; //longUrl
-      urlDatabase[req.params.id] = editUrl
-      res.redirect('/urls/' + req.params.id);
-    } else {
-      res.status(404).render('404');
-    };
+      urlDatabase[req.params.id] = editUrl;
+      // const timesVisited =  Number(req.cookies.timesVisited) || 0
+      // res.cookie('timesVisited', timesVisited + 1);
+
+    // } else {
+    //   res.status(404).render('404');
+    // };
   } else {
     res.redirect('/login');
   }
+  res.redirect('/urls/' + req.params.id);
 });
 // ---------------------------- New Short URL ---------------------------- //
+//git check urls_new with urls_new
+
 app.get("/urls/new", (req, res) => {
-  const user = userDB[req.body.email];
+  const user = userDB[req.session.email];
+  console.log(user);
   if (user){
     res.render("urls_new");
   } else {
+    //Unauthorized err
     res.status(401).render('401');
   };
 });
@@ -239,3 +252,10 @@ app.post('/logout', (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}!`);
 });
+
+
+// how do i check which ejs page i am reading from in a particular get/post(view counts)
+
+// redirect when user is loged in and tries to log in again
+// redirect when user is loged in and tries to register
+// change header when user is loged in and is in the /urls/:id page

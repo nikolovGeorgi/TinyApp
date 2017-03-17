@@ -24,8 +24,8 @@
             <th>Unique Visits</th>
           </tr>
         </thead>
-        <% for (var el in templateVars) {
-          var longUrl = templateVars[el];
+        <% for (var el in urlDatabase) {
+          var longUrl = urlDatabase[el];
         %>
           <tr>
             <td><a href="/urls/<%= el %>"><%= el %></a></td>
