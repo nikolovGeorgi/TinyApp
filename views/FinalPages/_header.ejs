@@ -1,0 +1,38 @@
+<!-- views/partials/header.ejs -->
+
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+      <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.7/slate/bootstrap.min.css">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">
+                <span class="glyphicon glyphicon glyphicon-tree-deciduous"></span>
+                LHL Is Fun
+            </a>
+        </div>
+        <ul class="nav navbar-nav">
+          <% if (userID) { %>
+            <h1> Hello <%= userEmail %>!</h1>
+            <li><a href="/">Home</a></li>
+            <li><a href="/urls">My Links</a></li>
+            <li><a href="/urls/new">New Url</a></li>
+            <li>
+              <form action="/logout" method="post" style="margin:15px;">
+                <input type="submit" value="Logout" class="btn btn-warning btn-sm">
+              </form>
+            </div>
+            </li>
+          <% } else { %>
+            <li>
+              <form action="/login" method="get" style="margin:15px;">
+                <input type="submit" value"Login" class="btn btn-warning btn-sm">
+              </form>
+            </li>
+            <li>
+              <form action="/register" method="get" style="margin:15px;">
+                <input type="submit" value="Register" class="btn btn-warning btn-sm">
+              </form>
+            </li>
+         <% } %>
+        </ul>
+    </div>
+</nav>

@@ -1,0 +1,55 @@
+<!-- views/urls_index.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include head %>
+</head>
+<body class="container">
+<% if (userID) { %>
+    <header>
+        <% include _header %>
+    </header>
+    <main>
+      <h2>Welcome to TinyApp Url Shorning Service!</h2>
+      <table class="table table-bordered table-responsive">
+        <thead>
+          <tr>
+            <th>Short URL</th>
+            <th>Long URL</th>
+            <th>Edit URL</th>
+            <th>Delete URL</th>
+          </tr>
+        </thead>
+        <% for (var shortUrl in urlDatabase) {
+          var longUrl = urlDatabase[shortUrl];
+        %>
+
+        <tr>
+  <td><%= shortUrl %></td>
+  <td><a href="http://<%= longUrl %>"><%= longUrl %></a></td>
+  <td>
+    <form  method="post" action="/urls/<%= shortUrl %>">
+      <label for="longUrl">Enter New Url:
+        <input id="editUrl" type="text" name="editUrl" placeholder="http://" style="width: 300px">
+      </label>
+      <button type="submit" value="editKey" class="btn btn-warning btn-sm">Edit</button>
+    </form>
+  </td>
+</tr>
+
+
+<% }; %>
+</table>
+<div class="jumbotron">
+    <h2>This is great</h2>
+    <p>Welcome to my Tiny App!</p>
+</div>
+</main>
+
+<footer>
+<% include footer %>
+</footer>
+<% }; %>
+</body>
+</html>

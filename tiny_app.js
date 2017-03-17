@@ -29,18 +29,11 @@ const userDB = {
     password: "dishwasher-funk"
   }
 }
-// const userDB = {
-//   'gnikolov@sfu.ca': {
-//     name: 'Georgi Nikolov',
-//     email: 'gnikolov@sfu.ca',
-//     password: '123a'
-//   }
-// }
 let timesVisited = 0;
 // ---------------------------- Configuration ---------------------------- //
 app.set('view engine', 'ejs');
 app.locals.title = "TinyApp";
-
+appTitle = app.locals.title;
 // ---------------------------- Middlewares ---------------------------- //
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
@@ -107,9 +100,13 @@ app.get('/', (req, res) => {
 app.get('/login', (req, res) => {
   // res.render('login');
   if (req.session.id){
+    let templateVars = {
+      userID: req.session.id
+    }
     res.redirect('/');
   }
   // render user_login, templateVars
+
   res.render('login');
 });
 // ------------------ TO DO ---------------------------
@@ -119,28 +116,16 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   //check if the person who is trying to log-in is already in the system by email
   for (let userID in userDB){
-    if (userDB[userID].email === req.body.email){
-      const user = userDB[userID];
-      // if email is valid -> check for the password
-      if(user && (user.password === req.body.password)){
-        // If so, login, set email cookie, and redirect
-        req.session.id = user.id;
-        res.redirect('/urls');
-        return;
-        // if email is valid, but password is not redirect to attempt logging again
-      } else {
-        res.redirect('/login')
-        // If not, send status 403 and show 403
-      }
-    } else {
-      // if email is invalid error 403
-      res.status(403).render('403');
+    if ((userDB[userID].email === req.body.email) && (userDB[userID].password === req.body.password)){
+      req.session.id = userDB[userID].id;
+      console.log(req.session.id, "ID");
+      // req.session.email = userDB[userID].email;
+      res.redirect('/urls');
+      return;
     }
   }
-  // if user is not in the database > redirect to register page
-  res.redirect('/register');
+  res.status(403).render('403');
 });
-
 // ---------------------------- Register Page ---------------------------- //
 // ------------------ TO DO ---------------------------
 //  if loged redirect > '/'
@@ -148,6 +133,9 @@ app.post('/login', (req, res) => {
 // ----------------------------------------------------
 app.get('/register', (req, res) => {
   if (req.session.id){
+    let templateVars = {
+      userID: req.session.id
+    }
     res.redirect('/');
     return;
   }
@@ -201,9 +189,29 @@ app.post('/register', (req, res) => {
 // ----------------------------------------------------
 app.get('/urls', (req, res) => {
   // const user = userDB[req.session.email];
-  if (res.session.id){
+  if (req.session.id){
+    console.log(req.session.email, " hi");
+    console.log(req.session, "session");
+    console.log(urlDatabase, "urlDatabase");
+    var templateVars = {
+      urlDatabase: urlDatabase,
+      userID: req.session.id,
+      userEmail: userDB[req.session.id].email
+    }
+    // console.log(userDB, "----------------");
+    // console.log(templateVars, " hello ");
+    // console.log(templateVars.urlDatabase, " My urlDatabase in templateVars");
+    // for (var el in templateVars.urlDatabase){
+    //   console.log(templateVars.urlDatabase[el], "------templateVars.urlDatabase[el]");
+    //   console.log(el, "------templateVars.urlDatabase[el]");
+    // }
+    // console.log(templateVars.userID, " FUCKING");
+    // console.log(req.session.email, " req.session.email");
+    // console.log(userDB[templateVars.userID].email, " userDB[templateVars.userID]email");
     // render urls_index, templateVars;
-    res.render('urls_index', {urlDatabase});
+    // res.render('urls_index', {urlDatabase});
+    console.log(templateVars);
+    res.render('./FinalPages/urls_index', templateVars);
     return;
   }
   res.redirect('/login'); // give err 401 with link for /login
@@ -234,11 +242,21 @@ app.post("/urls", (req, res) => {
 // delete button > post/urls/:id/delete
 // ----------------------------------------------------
 app.get('/urls/:id', (req, res) => {
-  if(res.session.id){
-    const shortUrl = req.params.id;
-    const longUrl = urlDatabase[shortUrl];
+  if(req.session.id){
+    var templateVars = {
+      urlDatabase: urlDatabase,
+      userID: req.session.id,
+      userEmail: req.session.email
+    }
+    // console.log(templateVars.userID, 'userid');
+    // console.log(templateVars.longUrl, 'longUrl');
+    // console.log(templateVars.shortUrl, 'shortUrl');
+    // const shortUrl = req.params.id;
+    // const longUrl = urlDatabase[shortUrl];
     // render urls_show, templateVars
-    res.render("urls_id", {shortUrl, longUrl});
+    //urls_id
+    // res.render("urls_show", {shortUrl, longUrl});
+    res.render("./FinalPages/urls_show", templateVars);
     return;
   }
   res.redirect('/login'); // give err 401 with link for /login
@@ -267,7 +285,7 @@ app.get('/urls/:id', (req, res) => {
 // if all well > update url > redirect /urls:id
 // ----------------------------------------------------
 app.post('/urls/:id', (req, res) => {
-  if(res.session.id){
+  if(req.session.id){
     const editUrl = req.body.editUrl; //longUrl
     if(!editUrl){
       res.status(404).render('404');
@@ -303,14 +321,19 @@ app.post('/urls/:id', (req, res) => {
 // if not > err 404
 // ----------------------------------------------------
 app.get('/u/:id', (req, res) => {
-  for (let userID in userDB){
+  console.log(req.params.id, "req.params.id");
+  console.log(urlDatabase[req.params.id], "haha"); // long
+  // for (let urls in urlDatabase){
+  //   console.log(urlDatabase[urls], "urlDatabase[urls]");
     if (req.params.id){
-      let longUrl = userDB[userID][req.params.id]
-      res.redirect(`${longUrl}`);
+      // let longUrl = urlDatabase[urls][req.params.id]
+      // res.redirect(`${longUrl}`);
+      res.redirect(`${urlDatabase[req.params.id]}`);
       return;
+      // break;
     }
-    return;
-  }
+  //   break;
+  // }
   res.status(404).render('404');
 });
 
@@ -320,8 +343,8 @@ app.get('/u/:id', (req, res) => {
 // if loged > 200 + header + form [input field for original URL + submit > post/urls]
 // ----------------------------------------------------
 app.get("/urls/new", (req, res) => {
-  if (res.session.id){
-    res.render("urls_new");
+  if (req.session.id){
+    res.render("./FinalPages/urls_new");
     return;
   }
   res.redirect('/login'); // give err 401 with link for /login
@@ -329,7 +352,7 @@ app.get("/urls/new", (req, res) => {
 
 // ---------------------------- Delete URLs ---------------------------- //
 app.post('/urls/:id/delete', (req, res) => {
-  if (!res.session.id){
+  if (!req.session.id){
     res.status(404).render('404');
     return;
   }
@@ -345,24 +368,55 @@ app.post('/urls/:id/delete', (req, res) => {
 // });
 
 // ---------------------------- Logout Page ---------------------------- //
+// app.post('/logout', (req, res) => {
+//   // if (!req.session.id){
+//   //   res.status(404).render('404');
+//   //   return;
+//   // }
+//   // res.clearCookie('email'); // Cookie Version
+//   // console.log(req.session.email, "before delete");
+//   // delete req.session.email; // Session Version
+//   // console.log(req.session.email, "after delete");
+//   res.clearCookie(req.session.id);
+//   res.redirect('/');
+//   // return;
+// });
 app.post('/logout', (req, res) => {
-  if (!res.session.id){
-    res.status(404).render('404');
-    return;
-  }
   // res.clearCookie('email'); // Cookie Version
-  // console.log(req.session.email, "before delete");
-  // delete req.session.email; // Session Version
-  // console.log(req.session.email, "after delete");
-  res.clearCookie(req.session.id);
-  res.redirect('/');
-  return;
+  delete req.session.id; // Session Version
+  delete req.session.email; // Session Version
+  res.redirect('/login');
 });
-
 // ---------------------------- Ports ---------------------------- //
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}!`);
 });
+
+// Keys in JS are Values in EJS
+// EXAMPLE :
+/*
+
+  users {
+  name: Georgi
+  age: 1
+
+  to access & print the name & age in EJS -> <%= name age %>
+}
+
+*/
+
+// BOOTSTRAP stylesheet in _header
+//<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.7/slate/bootstrap.min.css">
+// http://stackoverflow.com/questions/14903205/changing-bootstraps-form-colors
+
+
+/*request cookies = > check if it exists // collection coming from user
+                    use to check if cookie exists
+
+response cookies => send back cookies // send back to the client
+*/
+
+// res.cookie to set cookie
 
 // header
 //  if a user is loged in > header shows :
