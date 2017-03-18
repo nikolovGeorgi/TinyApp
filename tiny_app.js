@@ -10,10 +10,10 @@ const app = express();
 const port = process.env.PORT;
 
 // ---------------------------- dataBases ---------------------------- //
-const urlDatabase = {
-  'b2xVn2': 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.com'
-};
+const urlDatabase = [
+  {'b2xVn2': 'http://www.lighthouselabs.ca', 'userID': 'userRandomID'},
+  {'9sm5xK': 'http://www.google.com', 'userID': 'userRandomID'}
+];
 const userDB = {
   'userRandomID': {
     id: 'userRandomID',
@@ -90,12 +90,12 @@ app.post('/register', (req, res) => {
       // if the user inputs the right email & pass > direct them to urls
       if ((user.email === req.body.email) && (user.password === req.body.password)){
         res.redirect('/login');
-        console.log("redirecting to login----------------------------------------");
+        // console.log("redirecting to login----------------------------------------");
         return;
         // if the email is correct, but not the password > forbidden error
       } else if (user.email === req.body.email) {
         res.status(403).render('403');
-        console.log("$$$$$$$$$$$$$$ ERRR 403   $$$$$$$$$$$$$$$");
+        // console.log("$$$$$$$$$$$$$$ ERRR 403   $$$$$$$$$$$$$$$");
         return;
       }
     }
@@ -108,14 +108,15 @@ app.post('/register', (req, res) => {
     }
     req.session.id = newUserID;
     res.redirect('/');
-    console.log("redirecting to / ----------------------------------------");
+    // console.log("redirecting to / ----------------------------------------");
     return;
   }
   res.status(403).render('403');
-  console.log("$$$$$$$$$$$$$$ ERRR 403 BOTTOM  $$$$$$$$$$$$$$$");
+  // console.log("$$$$$$$$$$$$$$ ERRR 403 BOTTOM  $$$$$$$$$$$$$$$");
 });
 
 app.get('/urls', (req, res) => {
+  // console.log(userDB, "USER DB IN get / URLS");
   let currentUser = userDB[req.session.id];
   if (!currentUser){
     //TODO not according to requirements > fix
@@ -130,34 +131,51 @@ app.get('/urls', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
-  if (req.session.id){
-    console.log(userDB[req.session.id].id);
-    let shortUrl = generateRandomString();
-    urlDatabase[shortUrl] = req.body.longUrl;
-    // urlDatabase[userDB[req.session.id].id] = {
-      // shortUrl: req.body.longUrl,
+  let currentUser = userDB[req.session.id];
+  if (!currentUser){
+    //TODO not according to requirements > fix
+    return res.redirect('/login');
+  }
+  // if (req.session.id){
+    // console.log(userDB[req.session.id].id);
+    let shortUrl = generateRandomString();  //shortUrl
+    urlDatabase[shortUrl] = req.body.longUrl; // longUrl
+    longUrl = req.body.longUrl;
+    var newURL = {};
+    newURL[shortUrl] = longUrl;
+    newURL['userID'] = currentUser.id;
 
-    console.log(urlDatabase);
+    // console.log(newURL, " ------------- newURL");
+    urlDatabase.push(newURL);
+    // console.log('--------urlDatabase.push(newURL);----------');
+    // console.log(urlDatabase);
+    // console.log('--------urlDatabase.push(newURL);----');
+    // console.log(urlDatabase[shortUrl], "------------urlDatabase.shortul");
     res.redirect('/urls/' + shortUrl);
     return;
-  }
-  res.redirect('/login');
+  // }
+  // res.redirect('/login');
 });
 
 app.get('/urls/new', (req, res) => {
-    console.log("------------------------------------------");
-    console.log(userDB[req.session.id].id); // email
-    console.log("------------------------------------------");
-  if (req.session.id){
-    var templateVars = {
-      urlDatabase: urlDatabase,
-      userID: req.session.id,
-      userEmail: userDB[req.session.id].email
-    }
-    res.render('./FinalPages/urls_new', templateVars);
-    return;
+  // console.log("------------------------------------------");
+  // console.log(userDB[req.session.id].id); // email
+  // console.log("------------------------------------------");
+  let currentUser = userDB[req.session.id];
+  if (!currentUser){
+    //TODO not according to requirements > fix
+    return res.redirect('/login');
   }
-  res.redirect('/login');
+  var templateVars = {
+    urlDatabase: urlDatabase,
+    userID: req.session.id,
+    userEmail: userDB[req.session.id].email
+  }
+  // console.log(templateVars.urlDatabase, "---------templateVars.urlDatabase");
+  res.render('./FinalPages/urls_new', templateVars);
+  return;
+
+  // res.redirect('/login');
 });
 app.post('/logout', (req, res) => {
   delete req.session.id;
@@ -165,18 +183,36 @@ app.post('/logout', (req, res) => {
   res.redirect('/login');
 });
 app.get('/urls/:id', (req, res) => {
+  // console.log('---------------------------------------');
   if(req.session.id){
     var templateVars = {
       urlDatabase: urlDatabase,
       userID: req.session.id,
       userEmail: userDB[req.session.id].email
     }
+    let newURL = req.params.id;
+    let tempLongUrl = urlDatabase[newURL];
+    let currentUser = userDB[req.session.id].id;
+
+    // console.log(urlDatabase, "in SLOWWWWW");
+    // console.log(urlDatabase.req.params);
+    // console.log(userDB[req.session.id].id, "currentUser----------");
+    // console.log(urlDatabase[newURL], "urlDatabase[req.params]"); // longUrl
+    // console.log('_______________ AFTER');
+    // console.log(newURL);                                    //short url
+    // console.log(currentUser, "my CURRENT user ID");
+
+    // console.log(urlDatabase, "urlDatabase AFTER CHANGES");
+    // console.log(req.params, "req.params in _showwwwwwwwwwwwwwwwwwwwwwww");
     res.render('./FinalPages/urls_show', templateVars);
     return;
   }
   res.redirect('/login');
 });
+
 app.post('/urls/:id', (req, res) => {
+  // console.log(req.body, " ------------ req.body");
+  // console.log(req.params, " ------------ req.params");
   if(req.session.id){
     const editUrl = req.body.editUrl;
     if(!editUrl){
@@ -184,12 +220,15 @@ app.post('/urls/:id', (req, res) => {
       return;
     }
     urlDatabase[req.params.id] = editUrl;
+    // console.log(urlDatabase, "--------- is urlDatabase");
   } else {
     res.redirect('/login');
     return;
   }
   res.redirect('/urls/' + req.params.id);
 });
+
+
 app.get('/u/:id', (req, res) => {
     if (req.params.id){
       res.redirect(`${urlDatabase[req.params.id]}`);
