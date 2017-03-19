@@ -18,31 +18,30 @@
             <th>Edit URL</th>
           </tr>
         </thead>
-        <% for (var shortUrl in urlDatabase) {
-          var longUrl = urlDatabase[shortUrl];
-        %>view
-  <td><%= shortUrl %></td>
-  <td><a href="http://<%= longUrl %>"><%= longUrl %></a></td>
-  <td>
-    <form  method="post" action="/urls/<%= shortUrl %>">
-      <label for="longUrl">Enter New Url:
-        <input id="editUrl" type="text" name="editUrl" value="http://" style="width: 300px">
-      <button type="submit" value="editKey" class="btn btn-warning btn-sm">Edit</button>
-    </label>
-    </form>
-  </td>
-</tr>
-<% }; %>
-</table>
-<div class="jumbotron">
-    <h2>This is great</h2>
-    <p>Welcome to my Tiny App!</p>
-</div>
-</main>
 
-<footer>
-<% include footer %>
-</footer>
-<% }; %>
+         <tr>
+           <td><%= urlDatabase.shortUrl %></td>
+           <td><%= urlDatabase.longUrl %></td>
+           <td>
+
+             <form action="/urls/<%= urlDatabase.shortUrl %>" method="post" >
+               <label for="longUrl">Enter a URL:
+                 <input id="longUrl" type="text" name="longUrl" placeholder="http://" style="width: 300px">
+               <input type="submit" value="Submit" class="btn btn-warning btn-sm">
+             </label>
+             </form>
+           </td>
+         </tr>
+      </table>
+        <div class="jumbotron">
+            <h2>This is great</h2>
+            <p>Welcome to my Tiny App!</p>
+        </div>
+    </main>
+
+    <footer>
+        <% include footer %>
+    </footer>
+  <% }; %>
 </body>
 </html>

@@ -22,9 +22,12 @@
             <th>Unique Visits</th>
           </tr>
         </thead>
-        <% for (var shortUrl in urlDatabase) {
-          var longUrl = urlDatabase[shortUrl];
-        %>
+         <% for (var index in urlDatabase) {
+           var urlObject = urlDatabase[index];
+             var shortUrl = urlObject.shortUrl;
+             var longUrl = urlObject.longUrl;
+         %>
+
         <tr>
           <td><a href="/urls/<%= shortUrl %>"><%= shortUrl %></a></td>
           <td><a href="<%= longUrl %>"><%= longUrl %></a></td>
