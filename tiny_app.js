@@ -12,7 +12,7 @@ const port = process.env.PORT;
 // ---------------------------- dataBases ---------------------------- //
 const urlDatabase = [
   {"shortUrl":'b2xVn2', "longUrl": 'http://www.lighthouselabs.ca', 'userID': 'userRandomID'},
-  {'9sm5xK': 'http://www.google.com', 'userID': 'userRandomID'}
+  {"shortUrl":'9sm5xK', "longUrl": 'http://www.google.com', 'userID': 'userRandomID'}
 ];
 const userDB = {
   'userRandomID': {
@@ -89,10 +89,13 @@ app.post('/register', (req, res) => {
       // if the user inputs the right email & pass > direct them to urls
       if ((user.email === req.body.email) && (user.password === req.body.password)){
         res.redirect('/login');
+        console.log("redirecting to /login -----------HERE------------------");
+
         return;
         // if the email is correct, but not the password > forbidden error
       } else if (user.email === req.body.email) {
         res.status(403).render('403');
+        console.log("redirecting to / -----------HERE------------------");
         return;
       }
     }
@@ -101,19 +104,20 @@ app.post('/register', (req, res) => {
     userDB[`${newUserID}`] = {
       id: newUserID,
       email: req.body.email,
-      password: req.body.password
+      password: hashPass(req.body.password)
     }
     req.session.id = newUserID;
     res.redirect('/');
-    // console.log("redirecting to / ----------------------------------------");
+    console.log("redirecting to / ----------------------------------------");
     return;
   }
   res.status(403).render('403');
-  // console.log("$$$$$$$$$$$$$$ ERRR 403 BOTTOM  $$$$$$$$$$$$$$$");
+  console.log("$$$$$$$$$$$$$$ ERRR 403 BOTTOM  $$$$$$$$$$$$$$$");
 });
 // + Header
 app.get('/urls', (req, res) => {
   let currentUser = userDB[req.session.id];
+  console.log(userDB);
   // console.log(currentUser);
   if (!currentUser){
     return res.status(401).render('401');
@@ -124,7 +128,7 @@ app.get('/urls', (req, res) => {
     userID: req.session.id,
     userEmail: userDB[req.session.id].email
   }
-  console.log(urlDatabase);
+  console.log(templateVars.urlDatabase);
   res.render('./FinalPages/urls_index', templateVars);
 });
 
@@ -225,10 +229,8 @@ app.get('/u/:id', (req, res) => {
     return res.status(404).render('404');
   }
   for (let i = 0; i < urlDatabase.length; i++){
-    for (let element in urlDatabase[i]){
-      if (currentShorUrl === element){
-        return res.redirect(urlDatabase[i][currentShorUrl])
-      }
+    if (currentShorUrl === urlDatabase[i].shortUrl){
+      return res.redirect(urlDatabase[i].longUrl)
     }
   }
 });
@@ -263,6 +265,9 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}!`);
 });
 
+function hashPass(password){
+  return hashed_password = bcrypt.hashSync(password, 10);
+}
 function urlCheck(input) {
   var regexr = input.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
   if (regexr === null)

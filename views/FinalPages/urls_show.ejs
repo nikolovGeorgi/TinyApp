@@ -18,12 +18,10 @@
             <th>Edit URL</th>
           </tr>
         </thead>
-
          <tr>
            <td><%= urlDatabase.shortUrl %></td>
            <td><%= urlDatabase.longUrl %></td>
            <td>
-
              <form action="/urls/<%= urlDatabase.shortUrl %>" method="post" >
                <label for="longUrl">Enter a URL:
                  <input id="longUrl" type="text" name="longUrl" placeholder="http://" style="width: 300px">
