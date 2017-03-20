@@ -43,13 +43,13 @@ app.use(cookieSession({
 app.get('/', (req, res) => {
   // if user is loged in > redirect to urls && if not > to the login page
   let currentUser = userDB[req.session.id];
-  console.log(userDB);
   if (!currentUser){
     return res.redirect('/login');
   }
   res.redirect('/urls');
 });
 // ---------------------------- Login Page ---------------------------- //
+// if not loged in render out the login page / otherwise redirect to home page
 app.get('/login', (req, res) => {
   let currentUser = userDB[req.session.id];
   if (!currentUser){
@@ -90,13 +90,10 @@ app.post('/register', (req, res) => {
       // if the user inputs the right email & pass > direct them to urls
       if ((user.email === req.body.email) && (user.password === req.body.password)){
         res.redirect('/login');
-        console.log("redirecting to /login -----------HERE------------------");
-
         return;
         // if the email is correct, but not the password > forbidden error
       } else if (user.email === req.body.email) {
         res.status(403).render('403');
-        console.log("redirecting to / -----------HERE------------------");
         return;
       }
     }
@@ -109,16 +106,13 @@ app.post('/register', (req, res) => {
     }
     req.session.id = newUserID;
     res.redirect('/');
-    console.log("redirecting to / ----------------------------------------");
     return;
   }
   res.status(400).render('400');
-  console.log("$$$$$$$$$$$$$$ ERRR 403 BOTTOM  $$$$$$$$$$$$$$$");
 });
 // + Header
 app.get('/urls', (req, res) => {
   let currentUser = userDB[req.session.id];
-  // console.log(currentUser);
   if (!currentUser){
     return res.status(401).render('401');
   }
@@ -138,6 +132,7 @@ app.post('/urls', (req, res) => {
   }
   let shortUrl = generateRandomString();
   let longUrl = req.body.longUrl;
+  //create a new object in order to add the user specific ID's to the links in urlDatabase
   var newURL = {};
   newURL['shortUrl'] = shortUrl;
   newURL['longUrl'] = longUrl;
@@ -148,7 +143,7 @@ app.post('/urls', (req, res) => {
   return;
 });
 
-// + header
+//
 app.get('/urls/new', (req, res) => {
   let currentUser = userDB[req.session.id];
   if (!currentUser){
@@ -159,12 +154,10 @@ app.get('/urls/new', (req, res) => {
     userID: req.session.id,
     userEmail: userDB[req.session.id].email
   }
-  // console.log(templateVars.urlDatabase, "---------templateVars.urlDatabase");
   res.render('./FinalPages/urls_new', templateVars);
   return;
-
-  // res.redirect('/login');
 });
+// delete cookies during logout session
 app.post('/logout', (req, res) => {
   delete req.session.id;
   delete req.session.email;
@@ -203,13 +196,12 @@ app.post('/urls/:id', (req, res) => {
   if (!currentUser){
     return res.status(401).render('401');
   }
+  // check if the new url they want to input is valid
   const editUrl = req.body.editUrl;
   if(!urlCheck(req.body.longUrl)){
     return res.status(404).render('404');
   }
   for (let idCheck in userDB){
-    console.log(idCheck, "idCheck");
-    console.log(userDB, "userDB");
     if (currentUser.id !== idCheck){
       return res.status(400).render('400');
     }
