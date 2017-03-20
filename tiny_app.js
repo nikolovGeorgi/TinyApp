@@ -18,7 +18,7 @@ const userDB = {
   'userRandomID': {
     id: 'userRandomID',
     email: 'user@example.com',
-    password: 'purple-monkey-dinosaur'
+    password: '$2a$10$8KEfUx4.j5wVSU86ssHOHOTWH75FS51IZnXZoG25ZMGoegjGKo6Uy'
   },
  'user2RandomID': {
     id: 'user2RandomID',
@@ -43,6 +43,7 @@ app.use(cookieSession({
 app.get('/', (req, res) => {
   // if user is loged in > redirect to urls && if not > to the login page
   let currentUser = userDB[req.session.id];
+  console.log(userDB);
   if (!currentUser){
     return res.redirect('/login');
   }
@@ -111,13 +112,12 @@ app.post('/register', (req, res) => {
     console.log("redirecting to / ----------------------------------------");
     return;
   }
-  res.status(403).render('403');
+  res.status(400).render('400');
   console.log("$$$$$$$$$$$$$$ ERRR 403 BOTTOM  $$$$$$$$$$$$$$$");
 });
 // + Header
 app.get('/urls', (req, res) => {
   let currentUser = userDB[req.session.id];
-  console.log(userDB);
   // console.log(currentUser);
   if (!currentUser){
     return res.status(401).render('401');
@@ -128,7 +128,6 @@ app.get('/urls', (req, res) => {
     userID: req.session.id,
     userEmail: userDB[req.session.id].email
   }
-  console.log(templateVars.urlDatabase);
   res.render('./FinalPages/urls_index', templateVars);
 });
 
@@ -208,22 +207,18 @@ app.post('/urls/:id', (req, res) => {
   if(!urlCheck(req.body.longUrl)){
     return res.status(404).render('404');
   }
-
-  for (let i = 0; i < urlDatabase.length; i++){
-    for (let element in urlDatabase[i]){
-      if (currentUser.id !== urlDatabase[i].userID){
-        return res.status(403).render('403');
-      }
+  for (let idCheck in userDB){
+    console.log(idCheck, "idCheck");
+    console.log(userDB, "userDB");
+    if (currentUser.id !== idCheck){
+      return res.status(400).render('400');
     }
   }
-
   urlDatabase[req.params.id] = editUrl;
   res.redirect('/urls/' + req.params.id);
 });
 
-
 app.get('/u/:id', (req, res) => {
-  // err not working!
   let currentShorUrl = req.params.id;
   if(!currentShorUrl){
     return res.status(404).render('404');
@@ -234,7 +229,6 @@ app.get('/u/:id', (req, res) => {
     }
   }
 });
-
 // ---------------------------- Delete URLs ---------------------------- //
 app.post('/urls/:id/delete', (req, res) => {
   if (!req.session.id){
@@ -242,23 +236,12 @@ app.post('/urls/:id/delete', (req, res) => {
     return;
   }
   let currentShorUrl = req.params.id;
-  // console.log(currentShorUrl);
   for (let i = 0; i < urlDatabase.length; i++){
-    // console.log("---------------------");
-    // console.log(urlDatabase[i]);
-    // console.log("---------------------");
     if (currentShorUrl === urlDatabase[i].shortUrl){
-      // console.log("WELL HELLO THERE");
       delete urlDatabase[i];
       res.redirect('/urls');
     }
-    // for (let element in urlDatabase[i]){
-    //   if (currentShorUrl === element){
-    //     delete urlDatabase[i][currentShorUrl];
-    //   }
-    // }
   }
-  // delete urlDatabase[req.params.id];
 });
 // ---------------------------- Ports ---------------------------- //
 app.listen(port, () => {
