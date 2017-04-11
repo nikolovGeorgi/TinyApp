@@ -213,7 +213,7 @@ app.post('/urls/:id', (req, res) => {
   if (!urlDatabase[shortUrl]){
     res.status(404).render('404');
   }
-  if (currentUser !== urlDatabase[shortUrl].currentUser){
+  if (currentUser !== urlDatabase[shortUrl].userID){
     res.status(403).render('403');
   }
 
