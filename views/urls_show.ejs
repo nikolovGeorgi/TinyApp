@@ -1,0 +1,59 @@
+<%- include ./partials/head %>
+<% if (userID) { %>
+
+  <body class="container">
+    <header>
+      <% include ./partials/_header %>
+    </header>
+    <main>
+      <h2>Welcome to TinyApp Url Shorning Service!</h2>
+      <table class="table table-bordered table-responsive">
+        <thead>
+          <tr>
+            <th>Short URL</th>
+            <th>Long URL</th>
+            <th>Add Url</th>
+            <th>Edit URL</th>
+            <th>Delete URL</th>
+          </tr>
+        </thead>
+        <tr>
+          <td><%= shortUrl %></td>
+          <td><%= longUrl %></td>
+          <td>
+            <a href="/urls/new">
+              <button class="btn btn-warning btn-sm" id="create-new-url">
+                &nbsp;
+                Add a New Urls
+                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+              </button>
+            </a>
+          </td>
+          <td>
+            <form action="/urls/<%= shortUrl %>" method="post" >
+              <label for="longUrl">Enter a URL:
+                <input id="longUrl" type="text" name="longUrl" value="<%= longUrl %>" placeholder="" style="width: 300px">
+                <input type="submit" value="update" class="btn btn-warning btn-sm">
+              </label>
+            </form>
+          </td>
+          <td>
+            <form action="/urls/<%= shortUrl %>/delete" method="post">
+              <button class="btn btn-warning btn-sm" id="delete">
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+              </button>
+            </form>
+          </td>
+        </tr>
+      </table>
+      <div class="jumbotron">
+        <h2>This is great</h2>
+        <p>Welcome to my Tiny App!</p>
+      </div>
+    </main>
+    <footer>
+      <%- include ./partials/footer %>
+    </footer>
+    <% }; %>
+  </body>
+</html>

@@ -5,7 +5,7 @@
   "main": "tiny_app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon -L tiny_app.js"
+    "start": "node tiny_app.js"
   },
   "author": "",
   "license": "ISC",

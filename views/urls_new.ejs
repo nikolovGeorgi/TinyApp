@@ -1,31 +1,25 @@
-<!-- views/urls_index.ejs -->
-
-<!DOCTYPE html>
-<html lang="en">
-
-  <head>
-      <% include head %>
-  </head>
+<%- include ./partials/head %>
 <% if (userID) { %>
+
   <body class="container">
     <header>
-        <% include _header %>
+      <% include ./partials/_header %>
     </header>
     <main>
       <h2>Shorten UR LIFE!</h2>
       <form action="/urls" method="post" style="margin:15px;">
         <label for="longUrl">Enter a URL:
-          <input id="longUrl" type="text" name="longUrl" value="http://" style="width: 300px">
+          <input id="longUrl" type="text" name="longUrl" value="http://" placeholder="http://" style="width: 300px">
         </label>
         <input type="submit" value="Submit" class="btn btn-warning btn-sm">
       </form>
       <div class="jumbotron">
-          <h2>This is great</h2>
-          <p>Welcome to my Tiny App!</p>
+        <h2>This is great</h2>
+        <p>Welcome to my Tiny App!</p>
       </div>
     </main>
     <footer>
-        <% include footer %>
+      <%- include ./partials/footer %>
     </footer>
     <% }; %>
   </body>
