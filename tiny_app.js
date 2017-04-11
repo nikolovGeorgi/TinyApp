@@ -77,13 +77,19 @@ app.get('/login', (req, res) => {
 
 app.post('/login', (req, res) => {
   //check if the person who is trying to log-in is already in the system by email
+  let currentUser;
   for (let userID in userDB){
-    if ((userDB[userID].email === req.body.email) && (bcrypt.compare(req.body.password, userDB[userID].password))){
-      req.session.id = userDB[userID].id;
-      return res.redirect('/');
+    if (userDB[userID].email === req.body.email){
+      currentUser = userDB[userID];
+      break;
     }
   }
-  res.status(401).render('401');
+  if (currentUser && bcrypt.compareSync(req.body.password, userDB[currentUser.id].password)) {
+    req.session.id = currentUser.id;
+    return res.redirect('/');
+  } else {
+    res.status(401).render('401');
+  }
 });
 // ---------------------------- Register Page ---------------------------- //
 app.get('/register', (req, res) => {
@@ -178,7 +184,6 @@ app.post('/logout', (req, res) => {
 app.get('/urls/:id', (req, res) => {
   let currentUser = req.session.id;
   let shortUrl = req.params.id;
-  let longUrl = urlDatabase[shortUrl].longUrl;
 
   if (!currentUser) {
     res.status(401).render('401');
@@ -193,6 +198,7 @@ app.get('/urls/:id', (req, res) => {
     return;
   }
 
+  let longUrl = urlDatabase[shortUrl].longUrl;
   let templateVars = {
     shortUrl,
     longUrl,
